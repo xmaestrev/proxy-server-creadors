@@ -2,8 +2,9 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import axios from 'axios';
 
-const app = express();
-const PORT = 3000;
+const app  = express();
+const PORT = Number(process.env.PORT) || 3000;      // usa la ENV o fallback
+const TARGET_ORIGIN = process.env.TARGET_ORIGIN!;   // “!” porque sabemos que existe
 
 // Configuración de CORS
 app.use(cors());
@@ -13,7 +14,7 @@ app.use(express.json());
 
 // Ruta proxy para redirigir solicitudes
 app.use('/api', async (req: Request, res: Response) => {
-  const apiUrl = 'https://www.creadors.tv' + req.originalUrl;
+  const apiUrl = TARGET_ORIGIN + req.originalUrl;
   console.log(`Redirigiendo a: ${apiUrl}`); // Verifica la URL en la consola
 
   try {
@@ -24,7 +25,7 @@ app.use('/api', async (req: Request, res: Response) => {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36',
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Referer': 'https://www.creadors.tv',
+        'Referer': TARGET_ORIGIN,
       },
       data: req.body,
       maxRedirects: 5, // Permitir hasta 5 redirecciones automáticas
